@@ -1,0 +1,100 @@
+MONGODB TASK
+
+
+// creating database
+use ecommerce;
+
+
+// create collection
+db.createCollection("customers");
+
+// inserting  single document to customers collections 
+db.customers.insertOne(
+  { name: "Siva Kumar", email: "siva@example.com", address: "12 Temple road, Villupuram" }
+);
+
+
+// inserting multiple document to customers collections using 
+db.customers.insertMany([
+  { name: "Ravi Kumar", email: "ravi.kumar@example.com", address: "123 Anna Salai, Chennai" },
+  { name: "Lakshmi Narayanan", email: "lakshmi.narayanan@example.com", address: "456 Park Street, Chennai" },
+  { name: "Suresh Babu", email: "suresh.babu@example.com", address: "789 Sector 5, Hyderabad" },
+  { name: "Anitha", email: "anitha@example.com", address: "101 Anna Nagar, Chennai" },
+  { name: "Venkatesh", email: "venkatesh.iyer@example.com", address: "202 Gandhi nagar, Madurai" },
+  { name: "Meera", email: "meera@example.com", address: "303 Marine Drive, Kochi" },
+  { name: "Ganesh Ram", email: "ganesh.ram@example.com", address: "404 Jubilee Hills, Hyderabad" },
+  { name: "Priya", email: "priya@example.com", address: "505 Park Street, Kolkata" },
+  { name: "Rahul", email: "rahul@example.com", address: "606 Sector 17, Bangalore" },
+  { name: "Sangeetha", email: "sangeetha@example.com", address: "707 Lajpat Nagar, Kochi" }
+]);
+
+
+// see all the collections inside ecommerce database
+show collections;
+
+// get all data from customer collection 
+db.customers.find();
+
+
+
+// find particular document using find
+db.customers.find({name:"Siva Kumar"});
+
+// updateOne
+db.customers.updateOne({name:"Siva Kumar"} , {$set : {gender:"male"}} );
+
+// updateMany
+db.customers.updateMany({gender:"male"} , {$set : {gender:"MALE"}} );
+
+// delete single document
+db.customers.delteOne({name:"Dummy1"});
+
+// delete many documents
+db.customers.deleteMany({address:"no address"});
+
+// operators
+db.products.find({price:{$gte:50000}});
+db.products.find({price:{$lte:10000}});
+db.products.find({price:{$eq:3000}});
+db.products.find({price:{$ne:3000}});
+
+// aggregator
+db.customers.aggregate([
+...     { $group: { _id: "$gender", count: { $sum: 1 } } }
+... ]);
+
+
+
+db.orders.aggregate([
+... {
+... $lookup: {
+... from: "customers",
+... localField: "customer_id",
+... foreignField: "_id",
+... as: "customer_details"
+... }
+... },
+... {
+... $unwind: "$customer_details"
+... },
+... {
+... $project: {
+... _id: 0,
+... order_date: 1,
+... total_amount: 1,
+... products: 1,
+... "customer_details.name": 1,
+... "customer_details.email": 1,
+... "customer_details.address": 1
+... }
+... },
+... {
+... $skip: 2
+... },
+... {
+... $limit: 4
+... }
+... ]);
+
+
+
